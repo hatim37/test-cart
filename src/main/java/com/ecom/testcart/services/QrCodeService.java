@@ -157,6 +157,51 @@ public class QrCodeService {
         });
     }
 
+    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) {
+        if (imageQrCode == null || imageQrCode.isEmpty()) {
+            throw new IllegalArgumentException("Le fichier QR code est vide ou null");
+        }
+
+        try (InputStream is = imageQrCode.getInputStream()) {
+            // Lire l'image
+            BufferedImage image = ImageIO.read(is);
+            if (image == null) {
+                throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
+            }
+
+            // Préparer le décodage ZXing
+            LuminanceSource source = new BufferedImageLuminanceSource(image);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            Reader reader = new MultiFormatReader();
+
+            // Décoder le QR code
+            Result result;
+            try {
+                result = reader.decode(bitmap);
+            } catch (NotFoundException | FormatException e) {
+                throw new RuntimeException("Impossible de décoder le QR code", e);
+            }
+
+            // Transformer en JSON
+            JSONObject obj = new JSONObject(result.getText());
+
+            // Remplir le DTO en utilisant optString pour éviter les NullPointerException
+            QrCodeDto qrCodeDto = new QrCodeDto();
+            qrCodeDto.setCode(obj.optString("Key", ""));
+            qrCodeDto.setName(obj.optString("Nom", ""));
+            qrCodeDto.setType(obj.optString("Type de billet", ""));
+            qrCodeDto.setQuantity(obj.optString("Nombre de place", ""));
+            qrCodeDto.setCommande(obj.optString("commande", ""));
+            qrCodeDto.setClient(obj.optString("client", ""));
+
+            return qrCodeDto;
+
+        } catch (IOException | ChecksumException e) {
+            throw new RuntimeException("Erreur lecture image QR code", e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 
