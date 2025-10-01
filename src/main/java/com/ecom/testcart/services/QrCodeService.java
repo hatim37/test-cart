@@ -163,32 +163,19 @@ public class QrCodeService {
         }
 
         try (InputStream is = imageQrCode.getInputStream()) {
-            // Lire l'image depuis le multipart
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
                 throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
             }
 
-            // Préparer le décodage ZXing
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
 
-            Result result;
-            try {
-                result = reader.decode(bitmap);
-            } catch (NotFoundException e) {
-                throw new RuntimeException("Impossible de décoder le QR code : QR code non trouvé", e);
-            } catch (ChecksumException e) {
-                throw new RuntimeException("Impossible de décoder le QR code : erreur de checksum", e);
-            } catch (FormatException e) {
-                throw new RuntimeException("Impossible de décoder le QR code : format invalide", e);
-            }
+            Result result = reader.decode(bitmap);
 
-            // Transformer le texte décodé en JSON
             JSONObject obj = new JSONObject(result.getText());
 
-            // Remplir le DTO en utilisant optString pour éviter les NullPointerException
             QrCodeDto qrCodeDto = new QrCodeDto();
             qrCodeDto.setCode(obj.optString("Key", ""));
             qrCodeDto.setName(obj.optString("Nom", ""));
@@ -199,10 +186,10 @@ public class QrCodeService {
 
             return qrCodeDto;
 
-        } catch (IOException e) {
-            throw new RuntimeException("Erreur lecture image QR code", e);
-        } catch (JSONException e) {
-            throw new RuntimeException("QR code décodé mais JSON invalide", e);
+        } catch (IOException | NotFoundException | ChecksumException e) {
+            throw new RuntimeException("Erreur lecture QR code", e);
+        } catch (JSONException | FormatException e) {
+            throw new RuntimeException("Erreur JSON QR code", e);
         }
     }
 
