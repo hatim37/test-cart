@@ -1,6 +1,6 @@
 package com.ecom.testcart.repository;
 
-import com.ecom.cart.entity.CartItems;
+import com.ecom.testcart.entity.CartItems;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
