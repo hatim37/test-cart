@@ -58,7 +58,7 @@ public class QrCodeService {
         this.productRestClient = productRestClient;
     }
 
-    public void generateQrCode(Long userId, Long orderId) {
+    /*public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -126,9 +126,9 @@ public class QrCodeService {
             throw new RuntimeException(e);
         }
         return null;
-    }
+    }*/
 
-/*
+
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {
         SecretKeySpec secretKey = this.getKeyFormUserAndOrder(userId,orderId);
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -204,7 +204,7 @@ public class QrCodeService {
         byte[] derived = sha.digest(combined);
 
         return new SecretKeySpec(derived, "AES"); // 32 bytes -> AES-256
-    }*/
+    }
 
 
 }
