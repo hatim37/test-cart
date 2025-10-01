@@ -79,12 +79,13 @@ public class QrCodeService {
                         "Nombre de place", item.getQuantity().toString(),
                         "Key", "this.encryptKey(userId, orderId, user.getName())"
                 );
-/*
+
                 String jsonString = new JSONObject(qrCodeDataMap).toString();
 
                 QRCodeWriter qrCodeWriter = new QRCodeWriter();
                 BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400
                 );
+                /*
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 MatrixToImageWriter.writeToStream(bitMatrix, "png", baos);
 
