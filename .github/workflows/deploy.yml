@@ -37,7 +37,6 @@ jobs:
             --region "$REGION" \
             --allow-unauthenticated \
             --service-account "$SERVICE_ACCOUNT_EMAIL" \
-            
             --add-cloudsql-instances "$CLOUDSQL_INSTANCE" \
             --timeout=300
 
