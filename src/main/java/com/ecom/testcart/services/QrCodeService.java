@@ -168,29 +168,27 @@ public class QrCodeService {
                 throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
             }
 
-            LuminanceSource source = new BufferedImageLuminanceSource(image);
+            /*LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
 
             Result result = reader.decode(bitmap);
 
-            JSONObject obj = new JSONObject(result.getText());
+            JSONObject obj = new JSONObject(result.getText());*/
 
             QrCodeDto qrCodeDto = new QrCodeDto();
-            qrCodeDto.setCode(obj.optString("Key", ""));
+            /*qrCodeDto.setCode(obj.optString("Key", ""));
             qrCodeDto.setName(obj.optString("Nom", ""));
             qrCodeDto.setType(obj.optString("Type de billet", ""));
             qrCodeDto.setQuantity(obj.optString("Nombre de place", ""));
             qrCodeDto.setCommande(obj.optString("commande", ""));
-            qrCodeDto.setClient(obj.optString("client", ""));
+            qrCodeDto.setClient(obj.optString("client", ""));*/
 
             return qrCodeDto;
 
-        } catch (IOException | NotFoundException | ChecksumException e) {
+        } catch (IOException  e) {
             throw new RuntimeException("Erreur lecture QR code", e);
-        } catch (JSONException | FormatException e) {
-            throw new RuntimeException("Erreur JSON QR code", e);
-        }
+
     }
 
 
