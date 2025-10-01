@@ -12,12 +12,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 @Configuration
 public class JwtConfig {
 
-    @Value("${SAS_JWK_URI}")
-    private String jwtUri;
-
     public JwtConfig(RsakeysConfig rsakeysConfig) {
         this.rsakeysConfig = rsakeysConfig;
     }
+
+    @Value("${SAS_JWK_URI}")
+    private String jwtUri;
 
     private final RsakeysConfig rsakeysConfig;
 

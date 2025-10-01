@@ -26,6 +26,7 @@ import java.util.Arrays;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class ConfigurationSecurityApplication {
 
+
     @Bean
     @Order(1)
     public SecurityFilterChain technicalTokenFilterChain(
@@ -43,6 +44,7 @@ public class ConfigurationSecurityApplication {
         return http.build();
     }
 
+
     @Bean
     @Order(2)
     public SecurityFilterChain securityFilterChain(
@@ -51,6 +53,7 @@ public class ConfigurationSecurityApplication {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/products").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
