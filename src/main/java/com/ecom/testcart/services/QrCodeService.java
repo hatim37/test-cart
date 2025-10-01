@@ -56,9 +56,10 @@ public class QrCodeService {
         this.cartRepository = cartRepository;
         this.tokenTechnicService = tokenTechnicService;
         this.productRestClient = productRestClient;
+        System.setProperty("java.awt.headless", "true");
     }
 
-    public void generateQrCode(Long userId, Long orderId) {
+    /*public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -85,13 +86,13 @@ public class QrCodeService {
                 QRCodeWriter qrCodeWriter = new QRCodeWriter();
                 BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400
                 );
-                /*
+
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 MatrixToImageWriter.writeToStream(bitMatrix, "png", baos);
 
                 item.setQrCode(baos.toByteArray());
 
-                cartRepository.save(item);*/
+                cartRepository.save(item);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -99,7 +100,7 @@ public class QrCodeService {
         });
     }
 
-    /*public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
+    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
         try
         {
             BufferedImage image = ImageIO.read(imageQrCode.getInputStream());
@@ -128,6 +129,61 @@ public class QrCodeService {
         }
         return null;
     }*/
+
+    public void generateQrCode(Long userId, Long orderId) throws Exception {
+        // Récupérer l'utilisateur
+        User user = userRestClient.findUserById("Bearer " + tokenTechnicService.getTechnicalToken(), userId);
+        if (user == null || user.getId() == null) {
+            throw new UserNotFoundException("Utilisateur introuvable");
+        }
+
+        // Récupérer les items de la commande
+        List<CartItems> cartItems = cartRepository.findByOrderId(orderId);
+        for (CartItems item : cartItems) {
+            Product product = productRestClient.findById(
+                    "Bearer " + tokenTechnicService.getTechnicalToken(), item.getProductId()
+            );
+            if (product == null || product.getId() == null) {
+                throw new RuntimeException("Produit introuvable pour item " + item.getId());
+            }
+
+            // Générer QR code
+            String qrJson = buildQrJson(user, item, product, userId, orderId);
+            byte[] qrBytes = generateQrCodeBytes(qrJson);
+            item.setQrCode(qrBytes);
+
+            // Sauvegarder l’item
+            cartRepository.save(item);
+        }
+    }
+
+    /**
+     * Crée le JSON pour le QR code
+     */
+    private String buildQrJson(User user, CartItems item, Product product, Long userId, Long orderId) throws Exception {
+        Map<String, String> qrCodeDataMap = Map.of(
+                "commande", item.getOrderId().toString(),
+                "client", user.getId().toString(),
+                "Nom", user.getName(),
+                "Type de billet", product.getName(),
+                "Nombre de place", item.getQuantity().toString(),
+                "Key", encryptKey(userId, orderId, user.getName())
+        );
+        return new JSONObject(qrCodeDataMap).toString();
+    }
+
+    /**
+     * Génère le QR code en mémoire (ByteArray) sans fichier local
+     */
+    private byte[] generateQrCodeBytes(String jsonString) throws Exception {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", baos);
+            return baos.toByteArray();
+        }
+    }
 
 
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {

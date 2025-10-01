@@ -22,35 +22,38 @@
 ## commande qui sera executé lors du lancement du container
 #ENTRYPOINT ["java","-jar","app.jar"]
 
-
-# --- Étape 1 : Build avec Maven ---
+# ─── Build Stage ─────────────────────────────
 FROM maven:3.9.7-eclipse-temurin-17 AS build
+
 WORKDIR /app
 
-# Copier pom.xml et télécharger les dépendances pour accélérer le build
+# Copier pom et télécharger les dépendances
 COPY pom.xml .
 RUN mvn -U -q -DskipTests dependency:go-offline
 
 # Copier le code source
 COPY src ./src
 
-# Compiler et packager l'application
+# Build jar
 RUN mvn -U clean package -DskipTests
 
-# --- Étape 2 : Image finale ---
+# ─── Runtime Stage ───────────────────────────
 FROM eclipse-temurin:17-jre-jammy
+
 WORKDIR /app
 
-# Copier le jar compilé depuis l'étape précédente
+# Copier le jar depuis l'étape build
 COPY --from=build /app/target/*.jar app.jar
 
-# Cloud Run fournit $PORT automatiquement → on le mappe à Spring Boot
-ENV PORT=8080
-ENV JAVA_OPTS="-Xms256m -Xmx512m -Djava.awt.headless=false"
-
-# Exposer le port pour Cloud Run
+# Port exposé pour Cloud Run
 EXPOSE 8080
 
-# Commande de lancement
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Headless mode pour ImageIO/ZXing
+ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Xms256m -Xmx512m"
+
+# Port variable par défaut pour Cloud Run
+ENV PORT=8080
+
+# Commande de démarrage
+ENTRYPOINT ["sh", "-c", "java $JAVA_TOOL_OPTIONS -jar app.jar"]
 
