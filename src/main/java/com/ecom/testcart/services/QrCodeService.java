@@ -60,7 +60,7 @@ public class QrCodeService {
         System.setProperty("java.awt.headless", "true");
     }
 
-    public void generateQrCode(Long userId, Long orderId) {
+    /*public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -105,40 +105,60 @@ public class QrCodeService {
                 throw new RuntimeException(e);
             }
         });
-    }
+    }*/
 
-    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) {
-        try (InputStream inputStream = imageQrCode.getInputStream()) {
-            BufferedImage image = ImageIO.read(inputStream);
-            if (image == null) {
-                throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
-            }
-
-            LuminanceSource source = new BufferedImageLuminanceSource(image);
-            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-
-            Result result = new MultiFormatReader().decode(bitmap);
-
-            JSONObject obj = new JSONObject(result.getText());
-
-            return QrCodeDto.builder()
-                    .code(obj.optString("Key"))
-                    .name(obj.optString("Nom"))
-                    .type(obj.optString("Type de billet"))
-                    .quantity(obj.optString("Nombre de place"))
-                    .commande(obj.optString("commande"))
-                    .client(obj.optString("client"))
-                    .build();
-
-        } catch (NotFoundException e) {
-            throw new RuntimeException("QR code introuvable dans l'image", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Impossible de lire le fichier image", e);
-        } catch (JSONException e) {
-            throw new RuntimeException("Le QR code ne contient pas de JSON valide", e);
+    public void generateQrCode(Long userId, Long orderId) {
+        User user = this.userRestClient.findUserById(
+                "Bearer " + this.tokenTechnicService.getTechnicalToken(), userId
+        );
+        if (user.getId() == null) {
+            throw new UserNotFoundException("Service indisponible");
         }
 
+        List<CartItems> cartItems = cartRepository.findByOrderId(orderId);
+
+        cartItems.forEach(item -> {
+            Product product = this.productRestClient.findById(
+                    "Bearer " + this.tokenTechnicService.getTechnicalToken(), item.getProductId()
+            );
+            if (product.getId() == null) {
+                throw new UserNotFoundException("Service indisponible");
+            }
+
+            try {
+                // Préparer les données du QR code
+                Map<String, String> qrCodeDataMap = Map.of(
+                        "commande", item.getOrderId().toString(),
+                        "client", user.getId().toString(),
+                        "Nom", user.getName(),
+                        "Type de billet", product.getName(),
+                        "Nombre de place", item.getQuantity().toString(),
+                        "Key", this.encryptKey(userId, orderId, user.getName()) // appel réel
+                );
+
+                String jsonString = new JSONObject(qrCodeDataMap).toString();
+
+                // Générer le QR code
+                QRCodeWriter qrCodeWriter = new QRCodeWriter();
+                BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400);
+
+                // Utilisation de try-with-resources pour le flux
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    MatrixToImageWriter.writeToStream(bitMatrix, "PNG", baos);
+                    item.setQrCode(baos.toByteArray()); // en mémoire
+                }
+
+                // Sauvegarder dans la base
+                cartRepository.save(item);
+
+            } catch (Exception e) {
+                throw new RuntimeException("Erreur lors de la génération du QR code", e);
+            }
+        });
     }
+
+
+
 
 
 
