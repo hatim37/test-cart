@@ -7,9 +7,10 @@ import com.ecom.testcart.model.Product;
 import com.ecom.testcart.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
+import lombok.Data;
 
 @Entity
+@Data
 public class CartItems {
 
     @Id
@@ -31,7 +32,7 @@ public class CartItems {
     @Column(columnDefinition = "longblob")
     private byte[] qrCode;
 
-    @JsonIgnore
+
     public CartItemsDto getCartDto() {
         CartItemsDto cartItemsDto = new CartItemsDto();
         cartItemsDto.setId(id);
