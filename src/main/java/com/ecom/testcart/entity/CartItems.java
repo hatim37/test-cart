@@ -25,7 +25,6 @@ public class CartItems {
     private User user;
     private Long userId;
     @Transient
-    @JsonIgnore
     private Order order;
     private Long orderId;
     @Lob
