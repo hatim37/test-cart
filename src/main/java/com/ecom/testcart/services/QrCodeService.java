@@ -32,6 +32,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -105,6 +106,44 @@ public class QrCodeService {
             }
         });
     }
+
+    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) {
+        try (InputStream inputStream = imageQrCode.getInputStream()) {
+            // Lire l'image en mémoire
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
+            }
+
+            // ZXing headless
+            LuminanceSource source = new BufferedImageLuminanceSource(image);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+            Result result = new MultiFormatReader().decode(bitmap);
+
+            // Transformer le texte JSON en objet
+            JSONObject obj = new JSONObject(result.getText());
+
+            return QrCodeDto.builder()
+                    .code(obj.optString("Key"))
+                    .name(obj.optString("Nom"))
+                    .type(obj.optString("Type de billet"))
+                    .quantity(obj.optString("Nombre de place"))
+                    .commande(obj.optString("commande"))
+                    .client(obj.optString("client"))
+                    .build();
+
+        } catch (NotFoundException e) {
+            throw new RuntimeException("QR code introuvable dans l'image", e);
+        } catch (FormatException | ChecksumException e) {
+            throw new RuntimeException("Erreur lors de la lecture du QR code", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible de lire le fichier image", e);
+        } catch (JSONException e) {
+            throw new RuntimeException("Le QR code ne contient pas de JSON valide", e);
+        }
+    }
+
 
     /*public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
         try
