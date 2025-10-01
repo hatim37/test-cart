@@ -12,6 +12,7 @@ import com.ecom.testcart.model.Product;
 import com.ecom.testcart.model.User;
 import com.ecom.testcart.repository.CartRepository;
 import com.ecom.testcart.response.UserNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -157,6 +158,8 @@ public class QrCodeService {
         });
     }
 
+
+
     public QrCodeDto decryptQrCode(MultipartFile imageQrCode) {
         if (imageQrCode == null || imageQrCode.isEmpty()) {
             throw new IllegalArgumentException("Le fichier QR code est vide ou null");
@@ -171,27 +174,27 @@ public class QrCodeService {
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
-
             Result result = reader.decode(bitmap);
 
-            /*JSONObject obj = new JSONObject(result.getText());*/
+            // Décoder le texte JSON avec Jackson
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> qrMap = mapper.readValue(result.getText(), Map.class);
 
-            QrCodeDto qrCodeDto = new QrCodeDto();
-            /*qrCodeDto.setCode(obj.optString("Key", ""));
-            qrCodeDto.setName(obj.optString("Nom", ""));
-            qrCodeDto.setType(obj.optString("Type de billet", ""));
-            qrCodeDto.setQuantity(obj.optString("Nombre de place", ""));
-            qrCodeDto.setCommande(obj.optString("commande", ""));
-            qrCodeDto.setClient(obj.optString("client", ""));*/
+            QrCodeDto dto = new QrCodeDto();
+            dto.setCode(qrMap.getOrDefault("Key", ""));
+            dto.setName(qrMap.getOrDefault("Nom", ""));
+            dto.setType(qrMap.getOrDefault("Type de billet", ""));
+            dto.setQuantity(qrMap.getOrDefault("Nombre de place", ""));
+            dto.setCommande(qrMap.getOrDefault("commande", ""));
+            dto.setClient(qrMap.getOrDefault("client", ""));
 
-            return qrCodeDto;
+            return dto;
 
-        } catch (IOException | NotFoundException e) {
+        } catch (IOException | NotFoundException | ChecksumException | FormatException e) {
             throw new RuntimeException("Erreur lecture QR code", e);
-        } catch (ChecksumException | FormatException e) {
-            throw new RuntimeException("JSON invalide dans QR code", e);
         }
     }
+
 
 
 
