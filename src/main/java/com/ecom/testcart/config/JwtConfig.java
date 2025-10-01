@@ -1,7 +1,6 @@
 package com.ecom.testcart.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,8 +11,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 @Configuration
 public class JwtConfig {
 
-    @Value("${SAS_JWK_URI}")
-    private String jwtUri;
 
     public JwtConfig(RsakeysConfig rsakeysConfig) {
         this.rsakeysConfig = rsakeysConfig;
@@ -33,11 +30,5 @@ public class JwtConfig {
         return NimbusJwtDecoder.withPublicKey(rsakeysConfig.publicKey()).build();
     }
 
-    @Bean
-    @Qualifier("resourceJwtDecoder")
-    public JwtDecoder resourceJwtDecoder() {
-        return NimbusJwtDecoder
-                .withJwkSetUri(jwtUri)
-                .build();
-    }
+
 }
