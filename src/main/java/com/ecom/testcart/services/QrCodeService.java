@@ -173,22 +173,22 @@ public class QrCodeService {
             Reader reader = new MultiFormatReader();
 
             Result result = reader.decode(bitmap);
-/*
-            JSONObject obj = new JSONObject(result.getText());*/
+
+            JSONObject obj = new JSONObject(result.getText());
 
             QrCodeDto qrCodeDto = new QrCodeDto();
-            /*qrCodeDto.setCode(obj.optString("Key", ""));
+            qrCodeDto.setCode(obj.optString("Key", ""));
             qrCodeDto.setName(obj.optString("Nom", ""));
             qrCodeDto.setType(obj.optString("Type de billet", ""));
             qrCodeDto.setQuantity(obj.optString("Nombre de place", ""));
             qrCodeDto.setCommande(obj.optString("commande", ""));
-            qrCodeDto.setClient(obj.optString("client", ""));*/
+            qrCodeDto.setClient(obj.optString("client", ""));
 
             return qrCodeDto;
 
         } catch (IOException | NotFoundException e) {
             throw new RuntimeException("Erreur lecture QR code", e);
-        } catch ( ChecksumException | FormatException e) {
+        } catch (JSONException | ChecksumException | FormatException e) {
             throw new RuntimeException("JSON invalide dans QR code", e);
         }
     }
