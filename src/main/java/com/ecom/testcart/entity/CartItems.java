@@ -7,10 +7,9 @@ import com.ecom.testcart.model.Product;
 import com.ecom.testcart.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
+
 
 @Entity
-@Data
 public class CartItems {
 
     @Id
