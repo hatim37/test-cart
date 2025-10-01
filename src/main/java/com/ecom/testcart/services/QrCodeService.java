@@ -168,10 +168,10 @@ public class QrCodeService {
                 throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
             }
 
-            /*LuminanceSource source = new BufferedImageLuminanceSource(image);
+            LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
-
+            /*
             Result result = reader.decode(bitmap);
 
             JSONObject obj = new JSONObject(result.getText());*/
