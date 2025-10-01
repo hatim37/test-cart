@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 @Configuration
 public class JwtConfig {
 
+    @Value("${SAS_JWK_URI}")
+    private String jwtUri;
+
     public JwtConfig(RsakeysConfig rsakeysConfig) {
         this.rsakeysConfig = rsakeysConfig;
     }
@@ -34,7 +37,7 @@ public class JwtConfig {
     @Qualifier("resourceJwtDecoder")
     public JwtDecoder resourceJwtDecoder() {
         return NimbusJwtDecoder
-                .withJwkSetUri("http://localhost:8091/api/oauth2/jwks")
+                .withJwkSetUri(jwtUri)
                 .build();
     }
 }
