@@ -163,7 +163,7 @@ public class QrCodeService {
         }
 
         try (InputStream is = imageQrCode.getInputStream()) {
-            // Lire l'image
+            // Lire l'image depuis le multipart
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
                 throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
@@ -174,15 +174,18 @@ public class QrCodeService {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
 
-            // Décoder le QR code
             Result result;
             try {
                 result = reader.decode(bitmap);
-            } catch (NotFoundException | FormatException e) {
-                throw new RuntimeException("Impossible de décoder le QR code", e);
+            } catch (NotFoundException e) {
+                throw new RuntimeException("Impossible de décoder le QR code : QR code non trouvé", e);
+            } catch (ChecksumException e) {
+                throw new RuntimeException("Impossible de décoder le QR code : erreur de checksum", e);
+            } catch (FormatException e) {
+                throw new RuntimeException("Impossible de décoder le QR code : format invalide", e);
             }
 
-            // Transformer en JSON
+            // Transformer le texte décodé en JSON
             JSONObject obj = new JSONObject(result.getText());
 
             // Remplir le DTO en utilisant optString pour éviter les NullPointerException
@@ -196,12 +199,15 @@ public class QrCodeService {
 
             return qrCodeDto;
 
-        } catch (IOException | ChecksumException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Erreur lecture image QR code", e);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("QR code décodé mais JSON invalide", e);
         }
     }
+
+
+
 
 
 
