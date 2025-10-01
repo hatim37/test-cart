@@ -58,7 +58,7 @@ public class QrCodeService {
         this.productRestClient = productRestClient;
     }
 
-    /*public void generateQrCode(Long userId, Long orderId) {
+    public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -79,7 +79,7 @@ public class QrCodeService {
                         "Nombre de place", item.getQuantity().toString(),
                         "Key", "this.encryptKey(userId, orderId, user.getName())"
                 );
-
+/*
                 String jsonString = new JSONObject(qrCodeDataMap).toString();
 
                 QRCodeWriter qrCodeWriter = new QRCodeWriter();
@@ -90,7 +90,7 @@ public class QrCodeService {
 
                 item.setQrCode(baos.toByteArray());
 
-                cartRepository.save(item);
+                cartRepository.save(item);*/
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -98,7 +98,7 @@ public class QrCodeService {
         });
     }
 
-    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
+    /*public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
         try
         {
             BufferedImage image = ImageIO.read(imageQrCode.getInputStream());
