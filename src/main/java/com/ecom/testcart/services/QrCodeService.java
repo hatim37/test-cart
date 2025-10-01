@@ -59,7 +59,7 @@ public class QrCodeService {
         System.setProperty("java.awt.headless", "true");
     }
 
-    /*public void generateQrCode(Long userId, Long orderId) {
+    public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -128,9 +128,9 @@ public class QrCodeService {
             throw new RuntimeException(e);
         }
         return null;
-    }*/
+    }
 
-    public void generateQrCode(Long userId, Long orderId) throws Exception {
+    /*public void generateQrCode(Long userId, Long orderId) throws Exception {
         // Récupérer l'utilisateur
         User user = userRestClient.findUserById("Bearer " + tokenTechnicService.getTechnicalToken(), userId);
         if (user == null || user.getId() == null) {
@@ -157,9 +157,9 @@ public class QrCodeService {
         }
     }
 
-    /**
+    *//**
      * Crée le JSON pour le QR code
-     */
+     *//*
     private String buildQrJson(User user, CartItems item, Product product, Long userId, Long orderId) throws Exception {
         Map<String, String> qrCodeDataMap = Map.of(
                 "commande", item.getOrderId().toString(),
@@ -172,9 +172,9 @@ public class QrCodeService {
         return new JSONObject(qrCodeDataMap).toString();
     }
 
-    /**
+    *//**
      * Génère le QR code en mémoire (ByteArray) sans fichier local
-     */
+     *//*
     private byte[] generateQrCodeBytes(String jsonString) throws Exception {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400);
@@ -183,7 +183,7 @@ public class QrCodeService {
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", baos);
             return baos.toByteArray();
         }
-    }
+    }*/
 
 
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {
