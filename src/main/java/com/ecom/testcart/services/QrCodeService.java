@@ -59,7 +59,7 @@ public class QrCodeService {
         System.setProperty("java.awt.headless", "true");
     }
 
-    /*public void generateQrCode(Long userId, Long orderId) {
+    public void generateQrCode(Long userId, Long orderId) {
         User user = this.userRestClient.findUserById("Bearer " + this.tokenTechnicService.getTechnicalToken(), userId);
         if (user.getId() == null) {
             throw new UserNotFoundException("Service indisponible");
@@ -87,10 +87,16 @@ public class QrCodeService {
                 BitMatrix bitMatrix = qrCodeWriter.encode(jsonString, BarcodeFormat.QR_CODE, 400, 400
                 );
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                MatrixToImageWriter.writeToStream(bitMatrix, "png", baos);
+                //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                //MatrixToImageWriter.writeToStream(bitMatrix, "png", baos);
 
-                item.setQrCode(baos.toByteArray());
+                try (
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    MatrixToImageWriter.writeToStream(bitMatrix, "PNG", baos);
+                    item.setQrCode(baos.toByteArray());
+                }
+
+                //item.setQrCode(baos.toByteArray());
 
                 cartRepository.save(item);
 
@@ -100,7 +106,7 @@ public class QrCodeService {
         });
     }
 
-    public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
+    /*public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
         try
         {
             BufferedImage image = ImageIO.read(imageQrCode.getInputStream());
@@ -130,7 +136,7 @@ public class QrCodeService {
         return null;
     }*/
 
-    public void generateQrCode(Long userId, Long orderId) throws Exception {
+    /*public void generateQrCode(Long userId, Long orderId) throws Exception {
         // Récupérer l'utilisateur
         User user = userRestClient.findUserById("Bearer " + tokenTechnicService.getTechnicalToken(), userId);
         if (user == null || user.getId() == null) {
@@ -179,7 +185,7 @@ public class QrCodeService {
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", baos);
             return baos.toByteArray();
         }
-    }
+    }*/
 
 
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {
