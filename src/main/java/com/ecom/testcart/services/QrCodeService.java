@@ -163,55 +163,35 @@ public class QrCodeService {
         }
 
         try (InputStream is = imageQrCode.getInputStream()) {
-            // Lire l'image
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
                 throw new IllegalArgumentException("Le fichier fourni n'est pas une image valide");
             }
 
-            // Préparer le décodage ZXing
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
 
-            // Décoder le QR code
-            Result result;
-            try {
-                result = reader.decode(bitmap);
-            } catch (NotFoundException | ChecksumException | FormatException e) {
-                throw new RuntimeException("Impossible de trouver un QR code dans l'image", e);
-            }
+            Result result = reader.decode(bitmap);
 
-            // Vérifier que le contenu est du JSON
-            String qrContent = result.getText();
-            if (qrContent == null || !qrContent.trim().startsWith("{")) {
-                throw new IllegalArgumentException("QR code ne contient pas de JSON valide : " + qrContent);
-            }
+            /*JSONObject obj = new JSONObject(result.getText());*/
 
-            // Transformer en JSON de façon sécurisée
-            JSONObject obj;
-            try {
-                obj = new JSONObject(qrContent);
-            } catch (JSONException e) {
-                throw new RuntimeException("Le QR code ne contient pas de JSON valide : " + qrContent, e);
-            }
-
-            // Remplir le DTO en utilisant optString pour éviter les NullPointerException
             QrCodeDto qrCodeDto = new QrCodeDto();
-            qrCodeDto.setCode(obj.optString("Key", ""));
+            /*qrCodeDto.setCode(obj.optString("Key", ""));
             qrCodeDto.setName(obj.optString("Nom", ""));
             qrCodeDto.setType(obj.optString("Type de billet", ""));
             qrCodeDto.setQuantity(obj.optString("Nombre de place", ""));
             qrCodeDto.setCommande(obj.optString("commande", ""));
-            qrCodeDto.setClient(obj.optString("client", ""));
+            qrCodeDto.setClient(obj.optString("client", ""));*/
 
             return qrCodeDto;
 
-        } catch (IOException e) {
-            throw new RuntimeException("Erreur lecture image QR code", e);
+        } catch (IOException | NotFoundException e) {
+            throw new RuntimeException("Erreur lecture QR code", e);
+        } catch (ChecksumException | FormatException e) {
+            throw new RuntimeException("JSON invalide dans QR code", e);
         }
     }
-
 
 
 
