@@ -171,9 +171,9 @@ public class QrCodeService {
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Reader reader = new MultiFormatReader();
-            /*
-            Result result = reader.decode(bitmap);
 
+            Result result = reader.decode(bitmap);
+/*
             JSONObject obj = new JSONObject(result.getText());*/
 
             QrCodeDto qrCodeDto = new QrCodeDto();
@@ -186,8 +186,10 @@ public class QrCodeService {
 
             return qrCodeDto;
 
-        } catch (IOException  e) {
+        } catch (IOException | NotFoundException e) {
             throw new RuntimeException("Erreur lecture QR code", e);
+        } catch ( ChecksumException | FormatException e) {
+            throw new RuntimeException("JSON invalide dans QR code", e);
         }
     }
 
