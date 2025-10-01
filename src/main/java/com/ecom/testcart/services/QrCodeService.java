@@ -77,7 +77,7 @@ public class QrCodeService {
                         "Nom", user.getName(),
                         "Type de billet", product.getName(),
                         "Nombre de place", item.getQuantity().toString(),
-                        "Key", this.encryptKey(userId, orderId, user.getName())
+                        "Key", "this.encryptKey(userId, orderId, user.getName())"
                 );
 
                 String jsonString = new JSONObject(qrCodeDataMap).toString();
@@ -128,7 +128,7 @@ public class QrCodeService {
         return null;
     }
 
-
+/*
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {
         SecretKeySpec secretKey = this.getKeyFormUserAndOrder(userId,orderId);
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -204,7 +204,7 @@ public class QrCodeService {
         byte[] derived = sha.digest(combined);
 
         return new SecretKeySpec(derived, "AES"); // 32 bytes -> AES-256
-    }
+    }*/
 
 
 }
