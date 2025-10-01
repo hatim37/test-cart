@@ -96,7 +96,7 @@ public class QrCodeService {
                 throw new RuntimeException(e);
             }
         });
-    }
+    }*/
 
     public QrCodeDto decryptQrCode(MultipartFile imageQrCode) throws Exception {
         try
@@ -126,7 +126,7 @@ public class QrCodeService {
             throw new RuntimeException(e);
         }
         return null;
-    }*/
+    }
 
 
     public String encryptKey(Long userId, Long orderId, String text) throws Exception {
