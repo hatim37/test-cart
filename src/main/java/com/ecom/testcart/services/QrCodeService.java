@@ -188,7 +188,7 @@ public class QrCodeService {
 
         } catch (IOException  e) {
             throw new RuntimeException("Erreur lecture QR code", e);
-
+        }
     }
 
 
