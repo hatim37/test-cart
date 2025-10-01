@@ -16,10 +16,9 @@ public class JwtConfig {
         this.rsakeysConfig = rsakeysConfig;
     }
 
-    @Value("http://localhost:8091/api")
-    private String jwtUri;
 
-    private RsakeysConfig rsakeysConfig;
+
+    private final RsakeysConfig rsakeysConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,7 +36,7 @@ public class JwtConfig {
     @Qualifier("resourceJwtDecoder")
     public JwtDecoder resourceJwtDecoder() {
         return NimbusJwtDecoder
-                .withJwkSetUri(jwtUri)
+                .withJwkSetUri("http://localhost:8091/api")
                 .build();
     }
 }
