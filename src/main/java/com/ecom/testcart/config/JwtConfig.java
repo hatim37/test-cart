@@ -30,5 +30,11 @@ public class JwtConfig {
         return NimbusJwtDecoder.withPublicKey(rsakeysConfig.publicKey()).build();
     }
 
-
+    @Bean
+    @Qualifier("resourceJwtDecoder")
+    public JwtDecoder resourceJwtDecoder() {
+        return NimbusJwtDecoder
+                .withJwkSetUri("http://localhost:8091/api/oauth2/jwks")
+                .build();
+    }
 }
